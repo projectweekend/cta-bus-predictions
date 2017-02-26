@@ -56,3 +56,5 @@ docs/_build/
 
 # PyBuilder
 target/
+
+\.cta_bus_predictions
