@@ -1,10 +1,9 @@
 version: "3"
 services:
-    bus_predictions:
+    app:
         build: .
-        command: python main.py
+        command: go run main.go
         volumes:
-            - ".cta_bus_predictions:/root/.cta_bus_predictions"
-            - ".:/src"
-        ports:
-            - "7350:7350"
+            - .:/go/src/github.com/projectweekend/cta-bus-predictions
+        environment:
+            WHATEVER: hey
