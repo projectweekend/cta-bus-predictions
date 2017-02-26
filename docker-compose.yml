@@ -1,0 +1,10 @@
+version: "3"
+services:
+    bus_predictions:
+        build: .
+        command: python main.py
+        volumes:
+            - ".cta_bus_predictions:/root/.cta_bus_predictions"
+            - ".:/src"
+        ports:
+            - "7350:7350"
