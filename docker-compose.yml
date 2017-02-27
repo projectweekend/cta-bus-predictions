@@ -4,6 +4,7 @@ services:
         build: .
         command: go run main.go
         volumes:
-            - .:/go/src/github.com/projectweekend/cta-bus-predictions
+            - ".:/go/src/github.com/projectweekend/cta-bus-predictions"
         environment:
-            WHATEVER: hey
+            API_KEY: whatever
+            STOP_IDS: 17772,587,5004
