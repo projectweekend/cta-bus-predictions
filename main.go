@@ -2,13 +2,19 @@ package main
 
 import (
     "encoding/json"
-    "fmt"
     "log"
     "net/http"
     "os"
     "strings"
     "time"
+    "github.com/gorilla/mux"
+    "github.com/gorilla/websocket"
 )
+
+var upgrader = websocket.Upgrader{
+    ReadBufferSize:  1024,
+    WriteBufferSize: 1024,
+}
 
 type prd struct {
     CurrentTime string `json:"tmstmp"`
@@ -57,7 +63,7 @@ func predictionsForStop(stopID string, apiKey string, results chan prd) {
     }
 }
 
-func pollPredictions(stopIDs []string, apiKey string, results chan prd)  {
+func pollPredictions(stopIDs []string, apiKey string, results chan prd) {
     for {
         for _, stopID := range stopIDs {
             go predictionsForStop(stopID, apiKey, results)
@@ -66,12 +72,34 @@ func pollPredictions(stopIDs []string, apiKey string, results chan prd)  {
     }
 }
 
+func socketHandler(w http.ResponseWriter, r *http.Request)  {
+    conn, err := upgrader.Upgrade(w, r, nil)
+    if err != nil {
+        log.Println(err)
+        return
+    }
+
+    var apiKey = os.Getenv("API_KEY")
+    var stopIDs = strings.Split(os.Getenv("STOP_IDS"), ",")
+    var prdResults = make(chan prd)
+
+    go pollPredictions(stopIDs, apiKey, prdResults)
+
+    for p := range prdResults {
+        err = conn.WriteJSON(p)
+        if err != nil {
+            log.Println(err)
+            return
+        }
+    }
+}
+
 func main() {
-    apiKey := os.Getenv("API_KEY")
-    stopIDs := strings.Split(os.Getenv("STOP_IDS"), ",")
-    results := make(chan prd)
-    go pollPredictions(stopIDs, apiKey, results)
-    for p := range results {
-        fmt.Println(p)
+    router := mux.NewRouter()
+    router.HandleFunc("/", socketHandler)
+    http.Handle("/", router)
+    err := http.ListenAndServe("0.0.0.0:5000", nil)
+    if err != nil {
+        log.Fatal(err)
     }
 }

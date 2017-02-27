@@ -5,6 +5,8 @@ services:
         command: go run main.go
         volumes:
             - ".:/go/src/github.com/projectweekend/cta-bus-predictions"
+        ports:
+            - "5000:5000"
         environment:
             API_KEY: whatever
             STOP_IDS: 17772,587,5004
