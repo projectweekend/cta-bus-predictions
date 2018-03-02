@@ -1,6 +1,0 @@
-.DS_Store
-.git
-.gitignore
-.cta_bus_predictions
-Dockerfile
-docker-compose.yml

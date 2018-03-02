@@ -1,1 +1,1 @@
-cta-bus-predictions
+cta-go
